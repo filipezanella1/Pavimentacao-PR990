@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Calculadora de Pavimentação por Estacas</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f4f6f8; padding:20px; }
+    .container { max-width:1200px; background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+    h1, h2, h3 { color:#333; }
+    .grid { display:grid; grid-template-columns: repeat(4,1fr); gap:10px; margin-bottom:10px; }
+    label { font-weight:bold; font-size:13px; }
+    input { width:100%; padding:6px; }
+    button { margin-top:20px; padding:12px 20px; background:#007bff; color:#fff; border:none; border-radius:6px; cursor:pointer; }
+    .hidden { display:none; }
+    table { width:100%; border-collapse:collapse; margin-top:15px; }
+    th, td { border:1px solid #ccc; padding:8px; text-align:right; }
+    th { background:#eee; }
+    td:first-child, th:first-child { text-align:left; }
+    .result { margin-top:20px; background:#e9f5ff; padding:15px; border-left:5px solid #007bff; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Calculadora de Pavimentação</h1>
+
+  <h2>Modo de Cálculo</h2>
+  <label><input type="radio" name="modo" id="modo_total" checked> Pista Inteira</label>
+  <label><input type="radio" name="modo" id="modo_faixas"> Bordo / Pista</label>
+
+  <h2>Materiais</h2>
+  <label><input type="checkbox" id="mat_cbuq" checked> CBUQ</label>
+  <label><input type="checkbox" id="mat_bica_ref"> Bica Reforço</label>
+  <label><input type="checkbox" id="mat_bica_sub"> Bica Sub-base</label>
+  <label><input type="checkbox" id="mat_bgs"> BGS</label>
+
+  <div id="pista_inteira">
+    <h2>Pista Inteira</h2>
+    <div class="grid">
+      <div><label>Estaca Inicial (ex: 101+5)</label><input id="pi_ini"></div>
+      <div><label>Estaca Final (ex: 105+12)</label><input id="pi_fim"></div>
+      <div><label>Largura CBUQ (m)</label><input id="pi_l"></div>
+    </div>
+  </div>
+
+  <div id="faixas" class="hidden">
+    <h2>Modo Bordo / Pista</h2>
+    <div class="grid">
+      <div><label>Bordo Esq – Inicial</label><input id="be_ini"></div>
+      <div><label>Bordo Esq – Final</label><input id="be_fim"></div>
+      <div><label>Largura (m)</label><input id="be_l"></div>
+      <div></div>
+    </div>
+    <div class="grid">
+      <div><label>Pista Esq – Inicial</label><input id="pe_ini"></div>
+      <div><label>Pista Esq – Final</label><input id="pe_fim"></div>
+      <div><label>Largura (m)</label><input id="pe_l"></div>
+      <div></div>
+    </div>
+    <div class="grid">
+      <div><label>Pista Dir – Inicial</label><input id="pd_ini"></div>
+      <div><label>Pista Dir – Final</label><input id="pd_fim"></div>
+      <div><label>Largura (m)</label><input id="pd_l"></div>
+      <div></div>
+    </div>
+    <div class="grid">
+      <div><label>Bordo Dir – Inicial</label><input id="bd_ini"></div>
+      <div><label>Bordo Dir – Final</label><input id="bd_fim"></div>
+      <div><label>Largura (m)</label><input id="bd_l"></div>
+      <div></div>
+    </div>
+  </div>
+
+  <button onclick="calcular()">Calcular</button>
+  <div id="resultado" class="result hidden"></div>
+</div>
+
+<script>
+// ================= BASE DE DADOS =================
+const materiaisDB = {
+  'CBUQ': { esp:0.05, dens:2.53, tipo:'t', delta:0, preco:263.04 },
+  'Bica Reforço': { esp:0.30, dens:2.40, tipo:'m3t', delta:1.92, preco:180.59 },
+  'Bica Sub-base': { esp:0.20, dens:2.40, tipo:'m3t', delta:1.12, preco:180.59 },
+  'BGS': { esp:0.15, dens:2.40, tipo:'m3t', delta:0.52, preco:241.97 }
+};
+
+const ligantes = { CAP:0.048, RR1C:0.0007, EAI:0.0012 };
+const densLigantes = { RR1C:1.00, EAI:1.00 };
+const precoLigantes = { CAP:5547.75, RR1C:4476.94, EAI:5716.46 };
+
+// ================= CONTROLES =================
+modo_total.onchange = modo_faixas.onchange = () => {
+  pista_inteira.classList.toggle('hidden', !modo_total.checked);
+  faixas.classList.toggle('hidden', !modo_faixas.checked);
+};
+
+function estacaParaMetro(txt){
+  if(!txt) return NaN;
+  const t = String(txt).replace(',', '.').trim();
+  if(!t.includes('+')){
+    const e = Number(t);
+    return isNaN(e) ? NaN : e * 20;
+  }
+  const [e,f] = t.split('+');
+  return Number(e)*20 + Number(f);
+}
+
+// ================= CÁLCULO =================
+function calcular(){
+  const materiais = [];
+  if(mat_cbuq.checked) materiais.push('CBUQ');
+  if(mat_bica_ref.checked) materiais.push('Bica Reforço');
+  if(mat_bica_sub.checked) materiais.push('Bica Sub-base');
+  if(mat_bgs.checked) materiais.push('BGS');
+  if(!materiais.length){ alert('Selecione ao menos um material'); return; }
+
+  let faixasCalc = [];
+  if(modo_total.checked){
+    const ci = estacaParaMetro(pi_ini.value);
+    const cf = estacaParaMetro(pi_fim.value);
+    if(cf>ci) faixasCalc.push({ nome:'Pista Inteira', c:(cf-ci), l:Number(pi_l.value.replace(',','.')) });
+  } else {
+    [
+      ['Bordo Esquerdo',be_ini,be_fim,be_l],
+      ['Pista Esquerda',pe_ini,pe_fim,pe_l],
+      ['Pista Direita',pd_ini,pd_fim,pd_l],
+      ['Bordo Direito',bd_ini,bd_fim,bd_l]
+    ].forEach(f=>{
+      const ci = estacaParaMetro(f[1].value);
+      const cf = estacaParaMetro(f[2].value);
+      if(cf>ci) faixasCalc.push({ nome:f[0], c:(cf-ci), l:Number(f[3].value.replace(',','.')) });
+    });
+  }
+
+  let html='';
+
+  materiais.forEach(mat=>{
+    const cfg = materiaisDB[mat];
+    let area=0, vol=0, ton=0, custo=0;
+    let rows='';
+
+    faixasCalc.forEach(f=>{
+      const larguraEf = f.l + cfg.delta;
+      const a = f.c * larguraEf;
+      const v = a * cfg.esp;
+      const t = v * cfg.dens;
+      // Custo: CBUQ por tonelada, granulares por volume (m³)
+      const custoItem = cfg.tipo === 't'
+        ? t * cfg.preco
+        : v * cfg.preco;
+
+      area += a; vol += v; ton += t; custo += custoItem;
+
+      rows += cfg.tipo === 't'
+        ? `<tr><td>${f.nome}</td><td>${f.c.toFixed(2)}</td><td>${t.toFixed(2)}</td><td>R$ ${custoItem.toFixed(2)}</td></tr>`
+        : `<tr><td>${f.nome}</td><td>${f.c.toFixed(2)}</td><td>${larguraEf.toFixed(2)}</td><td>${v.toFixed(2)}</td><td>${t.toFixed(2)}</td><td>R$ ${custoItem.toFixed(2)}</td></tr>`;
+    });
+
+    html += `<h3>${mat}</h3>`;
+
+    if(cfg.tipo === 't'){
+      const cap_t = ton * ligantes.CAP;
+      const rr_t = (area * ligantes.RR1C) * densLigantes.RR1C;
+      const eai_t = (area * ligantes.EAI) * densLigantes.EAI;
+
+      const custoCAP = cap_t * precoLigantes.CAP;
+      const custoRR = rr_t * precoLigantes.RR1C;
+      const custoEAI = eai_t * precoLigantes.EAI;
+
+      html += `<table>
+        <tr><th>Faixa</th><th>Comprimento (m)</th><th>CBUQ (t)</th><th>Valor (R$)</th></tr>
+        ${rows}
+        <tr><th colspan="2">TOTAL CBUQ</th><th>${ton.toFixed(2)}</th><th>R$ ${custo.toFixed(2)}</th></tr>
+      </table>
+      <h4>Ligantes</h4>
+      <table>
+        <tr><th>Insumo</th><th>Consumo (t)</th><th>Preço (R$/t)</th><th>Valor (R$)</th></tr>
+        <tr><td>CAP</td><td>${cap_t.toFixed(2)}</td><td>${precoLigantes.CAP.toFixed(2)}</td><td>R$ ${custoCAP.toFixed(2)}</td></tr>
+        <tr><td>RR-1C</td><td>${rr_t.toFixed(3)}</td><td>${precoLigantes.RR1C.toFixed(2)}</td><td>R$ ${custoRR.toFixed(2)}</td></tr>
+        <tr><td>EAI</td><td>${eai_t.toFixed(3)}</td><td>${precoLigantes.EAI.toFixed(2)}</td><td>R$ ${custoEAI.toFixed(2)}</td></tr>
+      </table>`;
+    } else {
+      html += `<table>
+        <tr><th>Faixa</th><th>Comprimento (m)</th><th>Largura (m)</th><th>Volume (m³)</th><th>Toneladas (t)</th><th>Valor (R$)</th></tr>
+        ${rows}
+        <tr><th colspan="3">TOTAL</th><th>${vol.toFixed(2)}</th><th>${ton.toFixed(2)}</th><th>R$ ${custo.toFixed(2)}</th></tr>
+      </table>`;
+    }
+  });
+
+  resultado.innerHTML = html;
+  resultado.classList.remove('hidden');
+}
+</script>
+</body>
+</html>
