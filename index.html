@@ -128,7 +128,7 @@ const ligPreco={CAP:5547.75,RR:4476.94,EAI:5716.46};
 
 // ===== BANCO DE LARGURAS =====
 let bancoLarguras=[];
-fetch('larguras.json').then(r=>r.json()).then(d=>bancoLarguras=d);
+fetch('./larguras.json').then(r=>r.json()).then(d=>bancoLarguras=d);
 
 function toggleMetodo(){
   const metodo=document.querySelector('input[name="metodo"]:checked').value;
