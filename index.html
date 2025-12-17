@@ -219,13 +219,13 @@ function calcular(){
     faixas.forEach(f=>area+=f.c*f.largura);
     const vol=area*materiais.CBUQ.esp;
     const ton=vol*materiais.CBUQ.dens;
-    const custo=ton*materiais.CBUQ.preco;
+    const Valor=ton*materiais.CBUQ.preco;
 
     const cap_t=ton*lig.CAP;
     const rr_v=area*lig.RR;
     const eai_v=area*lig.EAI;
 
-    const custoLig=cap_t*ligPreco.CAP + rr_v*ligPreco.RR + eai_v*ligPreco.EAI;
+    const ValorLig=cap_t*ligPreco.CAP + rr_v*ligPreco.RR + eai_v*ligPreco.EAI;
 
     html+=`<div class="bubble">CBUQ: <span class="value">${fmtBR(ton)} t</span></div>`;
     html+=`<div class="bubble">Custo CBUQ: <span class="value">R$ ${fmtBR(custo)}</span></div>`;
@@ -242,7 +242,7 @@ function calcular(){
     faixas.forEach(f=>area+=f.c*(f.largura+cfg.delta));
     const vol=area*cfg.esp;
     const ton=vol*cfg.dens;
-    const custo=vol*cfg.preco;
+    const Valor=vol*cfg.preco;
 
     html+=`<div class="bubble">${g[2]}: ${fmtBR(vol)} m³</div>`;
     html+=`<div class="bubble">${g[2]}: ${fmtBR(ton)} t</div>`;
