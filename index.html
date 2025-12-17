@@ -219,20 +219,20 @@ function calcular(){
     faixas.forEach(f=>area+=f.c*f.largura);
     const vol=area*materiais.CBUQ.esp;
     const ton=vol*materiais.CBUQ.dens;
-    const custo=ton*materiais.CBUQ.preco;
+    const valor=ton*materiais.CBUQ.preco;
 
     const cap_t=ton*lig.CAP;
     const rr_v=area*lig.RR;
     const eai_v=area*lig.EAI;
 
-    const custoLig=cap_t*ligPreco.CAP + rr_v*ligPreco.RR + eai_v*ligPreco.EAI;
+    const valorLig=cap_t*ligPreco.CAP + rr_v*ligPreco.RR + eai_v*ligPreco.EAI;
 
     html+=`<div class="bubble">CBUQ: <span class="value">${fmtBR(ton)} t</span></div>`;
-    html+=`<div class="bubble">Custo CBUQ: <span class="value">R$ ${fmtBR(custo)}</span></div>`;
+    html+=`<div class="bubble">Custo CBUQ: <span class="value">R$ ${fmtBR(valor)}</span></div>`;
     html+=`<div class="bubble">CAP: ${fmtBR(cap_t)} t</div>`;
     html+=`<div class="bubble">RR-1C: ${fmtBR(rr_v,3)} t</div>`;
     html+=`<div class="bubble">EAI: ${fmtBR(eai_v,3)} t</div>`;
-    html+=`<div class="bubble">Custo ligantes: <span class="value">R$ ${fmtBR(custoLig)}</span></div>`;
+    html+=`<div class="bubble">Custo ligantes: <span class="value">R$ ${fmtBR(valorLig)}</span></div>`;
   }
 
   [['bref','BREF','Bica Reforço'],['bsub','BSUB','Bica Sub-base'],['bgs','BGS','BGS']].forEach(g=>{
@@ -242,7 +242,7 @@ function calcular(){
     faixas.forEach(f=>area+=f.c*(f.largura+cfg.delta));
     const vol=area*cfg.esp;
     const ton=vol*cfg.dens;
-    const custo=vol*cfg.preco;
+    const valor=vol*cfg.preco;
 
     html+=`<div class="bubble">${g[2]}: ${fmtBR(vol)} m³</div>`;
     html+=`<div class="bubble">${g[2]}: ${fmtBR(ton)} t</div>`;
