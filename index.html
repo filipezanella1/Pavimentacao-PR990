@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Pavimentação - PR990</title>
+<title>Pavimentação</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#203354">
+<meta name="theme-color" content="#00a884">
 <style>
 :root{
   --bg:#0b141a;--panel:#111b21;--card:#202c33;--text:#e9edef;
-  --sub:#8696a0;--accent:#203354;--border:#2a3942;
+  --sub:#8696a0;--accent:#00a884;--border:#2a3942;
 }
 @media (prefers-color-scheme: light){
   :root{
     --bg:#f0f2f5;--panel:#ffffff;--card:#ffffff;--text:#111b21;
-    --sub:#667781;--accent:#203354;--border:#e9edef;
+    --sub:#667781;--accent:#25d366;--border:#e9edef;
   }
 }
 *{box-sizing:border-box}
@@ -41,7 +41,7 @@ button{width:100%;padding:8px;font-size:16px;font-weight:600;border:none;border-
 </head>
 <body>
 <div class="app">
-  <div class="topbar">Pavimentação - PR990</div>
+  <div class="topbar">Pavimentação</div>
   <div class="content">
 
     <div class="card">
@@ -242,7 +242,7 @@ function calcular(){
     faixas.forEach(f=>area+=f.c*(f.largura+cfg.delta));
     const vol=area*cfg.esp;
     const ton=vol*cfg.dens;
-    const valor=vol*cfg.preco;
+    const custo=vol*cfg.preco;
 
     html+=`<div class="bubble">${g[2]}: ${fmtBR(vol)} m³</div>`;
     html+=`<div class="bubble">${g[2]}: ${fmtBR(ton)} t</div>`;
