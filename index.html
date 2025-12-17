@@ -7,23 +7,20 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#00a884">
 <style>
-/* ================= WHATSAPP STYLE UI ================= */
 :root{
-  --bg:#0b141a; --panel:#111b21; --card:#202c33; --text:#e9edef;
-  --sub:#8696a0; --accent:#00a884; --border:#2a3942;
+  --bg:#0b141a;--panel:#111b21;--card:#202c33;--text:#e9edef;
+  --sub:#8696a0;--accent:#00a884;--border:#2a3942;
 }
 @media (prefers-color-scheme: light){
   :root{
-    --bg:#f0f2f5; --panel:#ffffff; --card:#ffffff; --text:#111b21;
-    --sub:#667781; --accent:#25d366; --border:#e9edef;
+    --bg:#f0f2f5;--panel:#ffffff;--card:#ffffff;--text:#111b21;
+    --sub:#667781;--accent:#25d366;--border:#e9edef;
   }
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);
-font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial}
 .app{max-width:900px;margin:auto;min-height:100vh;display:flex;flex-direction:column}
 .topbar{background:var(--panel);padding:14px 16px;font-size:18px;font-weight:600;border-bottom:1px solid var(--border)}
-.step{display:none}.step.active{display:block}
 .content{padding:12px;flex:1}
 .card{background:var(--card);border-radius:12px;padding:14px;margin-bottom:12px}
 h2{font-size:14px;color:var(--sub);margin:0 0 8px;text-transform:uppercase}
@@ -38,119 +35,149 @@ input[type=checkbox],input[type=radio]{display:none}
 button{width:100%;padding:14px;font-size:16px;font-weight:600;border:none;border-radius:10px;background:var(--accent);color:#fff}
 .bubble{background:var(--card);border-radius:14px;padding:12px;margin-bottom:8px}
 .value{color:var(--accent);font-weight:600}
+.hidden{display:none}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="topbar">Pavimentação</div>
-
   <div class="content">
 
-    <!-- STEP 1 -->
-    <div class="step active" id="step1">
-      <div class="card">
-        <h2>1 · Método de cálculo</h2>
-        <div class="chips">
-          <label><input type="radio" name="metodo" value="total" checked><span class="chip">Pista inteira</span></label>
-          <label><input type="radio" name="metodo" value="faixas"><span class="chip">Bordo / pista</span></label>
-        </div>
-      </div>
-      <div class="card">
-        <h2>Trecho</h2>
-        <div class="grid">
-          <div><label>Estaca inicial</label><input id="ini" placeholder="91 ou 91+5"></div>
-          <div><label>Estaca final</label><input id="fim" placeholder="92 ou 92+10"></div>
-          <div><label>Largura CBUQ (m)</label><input id="larg"></div>
-        </div>
+    <div class="card">
+      <h2>Método de cálculo</h2>
+      <div class="chips">
+        <label><input type="radio" name="metodo" value="total" checked onchange="toggleMetodo()"><span class="chip">Pista inteira</span></label>
+        <label><input type="radio" name="metodo" value="faixas" onchange="toggleMetodo()"><span class="chip">Bordo / pista</span></label>
       </div>
     </div>
 
-    <!-- STEP 2 -->
-    <div class="step" id="step2">
-      <div class="card">
-        <h2>2 · Materiais</h2>
-        <div class="chips">
-          <label><input type="checkbox" id="cbuq" checked><span class="chip">CBUQ</span></label>
-          <label><input type="checkbox" id="bref"><span class="chip">Bica Reforço</span></label>
-          <label><input type="checkbox" id="bsub"><span class="chip">Bica Sub-base</span></label>
-          <label><input type="checkbox" id="bgs"><span class="chip">BGS</span></label>
-        </div>
+    <div id="modo_total" class="card">
+      <h2>Pista inteira</h2>
+      <div class="grid">
+        <div><label>Estaca inicial</label><input id="pi_ini" placeholder="91 ou 91+5"></div>
+        <div><label>Estaca final</label><input id="pi_fim" placeholder="92 ou 92+10"></div>
+        <div><label>Largura CBUQ (m)</label><input id="pi_larg"></div>
       </div>
     </div>
 
-    <!-- STEP 3 -->
-    <div class="step" id="step3">
-      <div class="card">
-        <h2>3 · Processamento</h2>
-        <div class="bubble">Comprimento, volumes e custos calculados automaticamente.</div>
+    <div id="modo_faixas" class="card hidden">
+      <h2>Bordo / pista</h2>
+      <div class="grid">
+        <div><label>Bordo Esq (m)</label><input id="be_l"></div>
+        <div><label>Pista Esq (m)</label><input id="pe_l"></div>
+        <div><label>Pista Dir (m)</label><input id="pd_l"></div>
+        <div><label>Bordo Dir (m)</label><input id="bd_l"></div>
+        <div><label>Estaca inicial</label><input id="pf_ini"></div>
+        <div><label>Estaca final</label><input id="pf_fim"></div>
       </div>
     </div>
 
-    <!-- STEP 4 -->
-    <div class="step" id="step4">
-      <div class="card">
-        <h2>4 · Resultado</h2>
-        <div id="resultado"></div>
+    <div class="card">
+      <h2>Materiais</h2>
+      <div class="chips">
+        <label><input type="checkbox" id="cbuq" checked><span class="chip">CBUQ</span></label>
+        <label><input type="checkbox" id="bref"><span class="chip">Bica Reforço</span></label>
+        <label><input type="checkbox" id="bsub"><span class="chip">Bica Sub-base</span></label>
+        <label><input type="checkbox" id="bgs"><span class="chip">BGS</span></label>
       </div>
+    </div>
+
+    <div class="card">
+      <h2>Resultado</h2>
+      <div id="resultado"></div>
     </div>
 
   </div>
 
   <div class="footer">
-    <button onclick="nextStep()">Continuar</button>
+    <button onclick="calcular()">Calcular</button>
   </div>
 </div>
 
 <script>
-// ===== BASE DE DADOS =====
-const materiaisDB={
-  CBUQ:{esp:0.05,dens:2.53,delta:0,preco:263.04,tipo:'t'},
-  BREF:{esp:0.30,dens:2.4,delta:1.92,preco:180.59,tipo:'v'},
-  BSUB:{esp:0.20,dens:2.4,delta:1.12,preco:180.59,tipo:'v'},
-  BGS:{esp:0.15,dens:2.4,delta:0.52,preco:241.97,tipo:'v'}
+const materiais={
+  CBUQ:{esp:0.05,dens:2.53,preco:263.04,delta:0},
+  BREF:{esp:0.30,dens:2.4,preco:180.59,delta:1.92},
+  BSUB:{esp:0.20,dens:2.4,preco:180.59,delta:1.12},
+  BGS:{esp:0.15,dens:2.4,preco:241.97,delta:0.52}
 };
 const lig={CAP:0.048,RR:0.0007,EAI:0.0012};
 const ligPreco={CAP:5547.75,RR:4476.94,EAI:5716.46};
 
-let step=1;
-function nextStep(){
-  document.getElementById('step'+step).classList.remove('active');
-  step=Math.min(step+1,4);
-  document.getElementById('step'+step).classList.add('active');
-  if(step===4) calcular();
+function toggleMetodo(){
+  const metodo=document.querySelector('input[name="metodo"]:checked').value;
+  modo_total.classList.toggle('hidden',metodo!=='total');
+  modo_faixas.classList.toggle('hidden',metodo!=='faixas');
 }
 
-function estacaM(t){
-  if(!t) return NaN;
-  t=t.replace(',','.');
-  if(!t.includes('+')) return Number(t)*20;
-  const [e,f]=t.split('+');
+function estacaM(v){
+  if(!v) return NaN;
+  v=v.replace(',','.');
+  if(!v.includes('+')) return Number(v)*20;
+  const [e,f]=v.split('+');
   return Number(e)*20+Number(f);
 }
 
 function calcular(){
-  const ci=estacaM(ini.value);
-  const cf=estacaM(fim.value);
-  const comp=cf-ci;
-  const larg=Number(larg.value.replace(',','.'));
+  let comprimento=0;
+  let larguraCBUQ=0;
+  const metodo=document.querySelector('input[name="metodo"]:checked').value;
+
+  if(metodo==='total'){
+    comprimento=estacaM(pi_fim.value)-estacaM(pi_ini.value);
+    larguraCBUQ=Number(pi_larg.value.replace(',','.'));
+  } else {
+    comprimento=estacaM(pf_fim.value)-estacaM(pf_ini.value);
+    larguraCBUQ=[be_l,pe_l,pd_l,bd_l]
+      .map(i=>Number(i.value.replace(',','.'))||0)
+      .reduce((s,v)=>s+v,0);
+  }
+
+  if(!comprimento || !larguraCBUQ || comprimento<=0){
+    resultado.innerHTML='<div class="bubble">Dados inválidos</div>';
+    return;
+  }
 
   let html='';
+  const areaCBUQ = comprimento * larguraCBUQ;
 
+  // ===== CBUQ =====
   if(cbuq.checked){
-    const area=comp*larg;
-    const vol=area*materiaisDB.CBUQ.esp;
-    const ton=vol*materiaisDB.CBUQ.dens;
-    const custo=ton*materiaisDB.CBUQ.preco;
+    const vol=areaCBUQ * materiais.CBUQ.esp;
+    const ton=vol * materiais.CBUQ.dens;
+    const custo=ton * materiais.CBUQ.preco;
 
-    const cap=ton*lig.CAP;
-    const rr=area*lig.RR;
-    const eai=area*lig.EAI;
+    const cap=ton * lig.CAP;
+    const rr=areaCBUQ * lig.RR;
+    const eai=areaCBUQ * lig.EAI;
+    const custoLig=cap*ligPreco.CAP + rr*ligPreco.RR + eai*ligPreco.EAI;
 
-    const custoLig=cap*ligPreco.CAP+rr*ligPreco.RR+eai*ligPreco.EAI;
+    html+=`<div class="bubble">CBUQ: <span class="value">${ton.toFixed(2)} t</span></div>`;
+    html+=`<div class="bubble">Custo CBUQ: <span class="value">R$ ${custo.toFixed(2)}</span></div>`;
+    html+=`<div class="bubble">Ligantes: <span class="value">R$ ${custoLig.toFixed(2)}</span></div>`;
+  }
 
-    html+=`<div class="bubble">CBUQ: <span class="value">${ton.toFixed(2)} t</span></div>`+
-          `<div class="bubble">Custo CBUQ: <span class="value">R$ ${custo.toFixed(2)}</span></div>`+
-          `<div class="bubble">Ligantes: <span class="value">R$ ${custoLig.toFixed(2)}</span></div>`;
+  // ===== GRANULARES (modo bordo/pista) =====
+  if(metodo==='faixas'){
+    const faixas=[
+      {nome:'Bica Reforço',key:'BREF',check:bref,l:be_l.value},
+      {nome:'Bica Sub-base',key:'BSUB',check:bsub,l:be_l.value},
+      {nome:'BGS',key:'BGS',check:bgs,l:be_l.value}
+    ];
+
+    faixas.forEach(f=>{
+      if(!f.check.checked) return;
+      const cfg=materiais[f.key];
+      const larguraEf=larguraCBUQ + cfg.delta;
+      const area=comprimento * larguraEf;
+      const vol=area * cfg.esp;
+      const ton=vol * cfg.dens;
+      const custo=vol * cfg.preco;
+
+      html+=`<div class="bubble">${f.nome}: <span class="value">${vol.toFixed(2)} m³</span></div>`;
+      html+=`<div class="bubble">${f.nome} (t): <span class="value">${ton.toFixed(2)} t</span></div>`;
+      html+=`<div class="bubble">Custo ${f.nome}: <span class="value">R$ ${custo.toFixed(2)}</span></div>`;
+    });
   }
 
   resultado.innerHTML=html;
