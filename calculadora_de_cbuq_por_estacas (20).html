@@ -67,19 +67,19 @@ button{width:100%;padding:14px;font-size:16px;font-weight:600;border:none;border
       <div class="grid">
         <div><label>Bordo Esq – Est. Inicial</label><input id="be_ini"></div>
         <div><label>Bordo Esq – Est. Final</label><input id="be_fim"></div>
-        <div><label>Bordo Esq – Largura</label><input id="be_l"></div>
+        <div><label>Bordo Esq – Largura</label><input id="be_l"></div>,
 
         <div><label>Pista Esq – Est. Inicial</label><input id="pe_ini"></div>
         <div><label>Pista Esq – Est. Final</label><input id="pe_fim"></div>
-        <div><label>Pista Esq – Largura</label><input id="pe_l"></div>
+        <div><label>Pista Esq – Largura</label><input id="pe_l"></div>,
 
         <div><label>Pista Dir – Est. Inicial</label><input id="pd_ini"></div>
         <div><label>Pista Dir – Est. Final</label><input id="pd_fim"></div>
-        <div><label>Pista Dir – Largura</label><input id="pd_l"></div>
+        <div><label>Pista Dir – Largura</label><input id="pd_l"></div>,
 
         <div><label>Bordo Dir – Est. Inicial</label><input id="bd_ini"></div>
         <div><label>Bordo Dir – Est. Final</label><input id="bd_fim"></div>
-        <div><label>Bordo Dir – Largura</label><input id="bd_l"></div>
+        <div><label>Bordo Dir – Largura</label><input id="bd_l"></div>,
       </div>
     </div>
 
@@ -181,8 +181,8 @@ function calcular(){
     html+=`<div class="bubble">CBUQ: <span class="value">${ton.toFixed(2)} t</span></div>`;
     html+=`<div class="bubble">Custo CBUQ: <span class="value">R$ ${custo.toFixed(2)}</span></div>`;
     html+=`<div class="bubble">CAP: ${cap_t.toFixed(2)} t</div>`;
-    html+=`<div class="bubble">RR-1C: ${rr_v.toFixed(3)} m³</div>`;
-    html+=`<div class="bubble">EAI: ${eai_v.toFixed(3)} m³</div>`;
+    html+=`<div class="bubble">RR-1C: ${rr_v.toFixed(3)} t</div>`;
+    html+=`<div class="bubble">EAI: ${eai_v.toFixed(3)} t</div>`;
     html+=`<div class="bubble">Custo ligantes: <span class="value">R$ ${custoLig.toFixed(2)}</span></div>`;
   }
 
