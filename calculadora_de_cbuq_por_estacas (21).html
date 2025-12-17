@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pavimentação</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00a884">
+<style>
+:root{
+  --bg:#0b141a;--panel:#111b21;--card:#202c33;--text:#e9edef;
+  --sub:#8696a0;--accent:#00a884;--border:#2a3942;
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#f0f2f5;--panel:#ffffff;--card:#ffffff;--text:#111b21;
+    --sub:#667781;--accent:#25d366;--border:#e9edef;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial}
+.app{max-width:900px;margin:auto;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--panel);padding:14px 16px;font-size:18px;font-weight:600;border-bottom:1px solid var(--border)}
+.content{padding:12px;flex:1}
+.card{background:var(--card);border-radius:12px;padding:14px;margin-bottom:12px}
+h2{font-size:14px;color:var(--sub);margin:0 0 8px;text-transform:uppercase}
+.row{display:grid;grid-template-columns:2fr 2fr 1fr;gap:10px;margin-bottom:8px}
+input{width:100%;padding:12px;font-size:16px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text)}
+label{font-size:12px;color:var(--sub)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{padding:8px 14px;border-radius:20px;border:1px solid var(--border);font-size:14px}
+input:checked + .chip{background:var(--accent);color:#fff;border-color:var(--accent)}
+input[type=checkbox],input[type=radio]{display:none}
+.footer{position:sticky;bottom:0;background:var(--panel);padding:12px;border-top:1px solid var(--border)}
+button{width:100%;padding:14px;font-size:16px;font-weight:600;border:none;border-radius:10px;background:var(--accent);color:#fff}
+.bubble{background:var(--card);border-radius:14px;padding:12px;margin-bottom:8px}
+.value{color:var(--accent);font-weight:600}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">Pavimentação</div>
+  <div class="content">
+
+    <div class="card">
+      <h2>Método de cálculo</h2>
+      <div class="chips">
+        <label><input type="radio" name="metodo" value="total" checked onchange="toggleMetodo()"><span class="chip">Pista inteira</span></label>
+        <label><input type="radio" name="metodo" value="faixas" onchange="toggleMetodo()"><span class="chip">Bordo / pista (CBUQ)</span></label>
+      </div>
+    </div>
+
+    <!-- PISTA INTEIRA -->
+    <div id="modo_total" class="card">
+      <h2>Pista inteira – CBUQ</h2>
+      <div class="row">
+        <div><label>Estaca inicial</label><input id="pi_ini" placeholder="91 ou 91+5"></div>
+        <div><label>Estaca final</label><input id="pi_fim" placeholder="92 ou 92+10"></div>
+        <div><label>Largura (m)</label><input id="pi_larg"></div>
+      </div>
+    </div>
+
+    <!-- BORDO / PISTA (SOMENTE CBUQ) -->
+    <div id="modo_faixas" class="card hidden">
+      <h2>Bordo / pista – CBUQ</h2>
+
+      <div class="row">
+        <div><label>Bordo Esq – Est. Inicial</label><input id="be_ini"></div>
+        <div><label>Bordo Esq – Est. Final</label><input id="be_fim"></div>
+        <div><label>Largura (m)</label><input id="be_l"></div>
+      </div>
+
+      <div class="row">
+        <div><label>Pista Esq – Est. Inicial</label><input id="pe_ini"></div>
+        <div><label>Pista Esq – Est. Final</label><input id="pe_fim"></div>
+        <div><label>Largura (m)</label><input id="pe_l"></div>
+      </div>
+
+      <div class="row">
+        <div><label>Pista Dir – Est. Inicial</label><input id="pd_ini"></div>
+        <div><label>Pista Dir – Est. Final</label><input id="pd_fim"></div>
+        <div><label>Largura (m)</label><input id="pd_l"></div>
+      </div>
+
+      <div class="row">
+        <div><label>Bordo Dir – Est. Inicial</label><input id="bd_ini"></div>
+        <div><label>Bordo Dir – Est. Final</label><input id="bd_fim"></div>
+        <div><label>Largura (m)</label><input id="bd_l"></div>
+      </div>
+    </div>
+
+    <!-- MATERIAIS -->
+    <div class="card">
+      <h2>Materiais</h2>
+      <div class="chips">
+        <label><input type="checkbox" id="cbuq" checked disabled><span class="chip">CBUQ</span></label>
+      </div>
+    </div>
+
+    <!-- RESULTADO -->
+    <div class="card">
+      <h2>Resultado</h2>
+      <div id="resultado"></div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <button onclick="calcular()">Calcular</button>
+  </div>
+</div>
+
+<script>
+// ===== BASE DE DADOS =====
+const CBUQ={esp:0.05,dens:2.53,preco:263.04};
+const lig={CAP:0.048,RR:0.0007,EAI:0.0012};
+const ligPreco={CAP:5547.75,RR:4476.94,EAI:5716.46};
+
+function toggleMetodo(){
+  const metodo=document.querySelector('input[name="metodo"]:checked').value;
+  modo_total.classList.toggle('hidden',metodo!=='total');
+  modo_faixas.classList.toggle('hidden',metodo!=='faixas');
+}
+
+function estacaM(v){
+  if(!v) return NaN;
+  v=v.replace(',','.');
+  if(!v.includes('+')) return Number(v)*20;
+  const [e,f]=v.split('+');
+  return Number(e)*20+Number(f);
+}
+
+function calcFaixa(ei,ef,l){
+  const ini=estacaM(ei);
+  const fim=estacaM(ef);
+  const comprimento=fim-ini;
+  const largura=Number(String(l).replace(',','.'));
+  if(isNaN(comprimento)||isNaN(largura)||comprimento<=0||largura<=0) return null;
+  return {comprimento,largura};
+}
+
+function calcular(){
+  let faixas=[];
+  const metodo=document.querySelector('input[name="metodo"]:checked').value;
+
+  if(metodo==='total'){
+    const r=calcFaixa(pi_ini.value,pi_fim.value,pi_larg.value);
+    if(!r){resultado.innerHTML='<div class="bubble">Dados inválidos</div>';return}
+    faixas.push(r);
+  } else {
+    const entradas=[
+      [be_ini,be_fim,be_l],
+      [pe_ini,pe_fim,pe_l],
+      [pd_ini,pd_fim,pd_l],
+      [bd_ini,bd_fim,bd_l]
+    ];
+    entradas.forEach(e=>{
+      const r=calcFaixa(e[0].value,e[1].value,e[2].value);
+      if(r) faixas.push(r);
+    });
+    if(!faixas.length){resultado.innerHTML='<div class="bubble">Dados inválidos</div>';return}
+  }
+
+  let ton=0;
+  faixas.forEach(f=>{
+    ton+=f.comprimento*f.largura*CBUQ.esp*CBUQ.dens;
+  });
+
+  const custoCBUQ=ton*CBUQ.preco;
+  const areaTotal=faixas.reduce((s,f)=>s+f.comprimento*f.largura,0);
+  const cap=ton*lig.CAP;
+  const rr=areaTotal*lig.RR;
+  const eai=areaTotal*lig.EAI;
+  const custoLig=cap*ligPreco.CAP+rr*ligPreco.RR+eai*ligPreco.EAI;
+
+  resultado.innerHTML=
+    `<div class="bubble">CBUQ: <span class="value">${ton.toFixed(2)} t</span></div>`+
+    `<div class="bubble">Custo CBUQ: <span class="value">R$ ${custoCBUQ.toFixed(2)}</span></div>`+
+    `<div class="bubble">CAP: ${cap.toFixed(2)} t</div>`+
+    `<div class="bubble">RR-1C: ${rr.toFixed(3)} m³</div>`+
+    `<div class="bubble">EAI: ${eai.toFixed(3)} m³</div>`+
+    `<div class="bubble">Custo ligantes: <span class="value">R$ ${custoLig.toFixed(2)}</span></div>`;
+}
+</script>
+</body>
+</html>
