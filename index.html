@@ -228,11 +228,11 @@ function calcular(){
     const valorLig=cap_t*ligPreco.CAP + rr_v*ligPreco.RR + eai_v*ligPreco.EAI;
 
     html+=`<div class="bubble">CBUQ: <span class="value">${fmtBR(ton)} t</span></div>`;
-    html+=`<div class="bubble">Custo CBUQ: <span class="value">R$ ${fmtBR(valor)}</span></div>`;
+    html+=`<div class="bubble">Valor CBUQ: <span class="value">R$ ${fmtBR(valor)}</span></div>`;
     html+=`<div class="bubble">CAP: ${fmtBR(cap_t)} t</div>`;
     html+=`<div class="bubble">RR-1C: ${fmtBR(rr_v,3)} t</div>`;
     html+=`<div class="bubble">EAI: ${fmtBR(eai_v,3)} t</div>`;
-    html+=`<div class="bubble">Custo ligantes: <span class="value">R$ ${fmtBR(valorLig)}</span></div>`;
+    html+=`<div class="bubble">Valor ligantes: <span class="value">R$ ${fmtBR(valorLig)}</span></div>`;
   }
 
   [['bref','BREF','Bica Reforço'],['bsub','BSUB','Bica Sub-base'],['bgs','BGS','BGS']].forEach(g=>{
@@ -246,7 +246,7 @@ function calcular(){
 
     html+=`<div class="bubble">${g[2]}: ${fmtBR(vol)} m³</div>`;
     html+=`<div class="bubble">${g[2]}: ${fmtBR(ton)} t</div>`;
-    html+=`<div class="bubble">Custo ${g[2]}: <span class="value">R$ ${fmtBR(custo)}</span></div>`;
+    html+=`<div class="bubble">Valo ${g[2]}: <span class="value">R$ ${fmtBR(valor)}</span></div>`;
   });
 
   resultado.innerHTML=html;
