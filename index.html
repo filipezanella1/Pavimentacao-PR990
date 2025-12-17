@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#007bff">
   <meta charset="UTF-8" />
   <title>Calculadora de Pavimentação por Estacas</title>
   <style>
@@ -190,6 +192,9 @@ function calcular(){
   resultado.innerHTML = html;
   resultado.classList.remove('hidden');
 }
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js');
+  }
 </script>
 </body>
 </html>
