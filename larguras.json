@@ -1,0 +1,26 @@
+[
+  {
+    "ini": "0+0",
+    "fim": "117+0",
+    "bordo_esq": 2.0,
+    "pista_esq": 3.5,
+    "pista_dir": 3.5,
+    "bordo_dir": 2.0
+  },
+  {
+    "ini": "117+0",
+    "fim": "123+0",
+    "bordo_esq": 3.1655,
+    "pista_esq": 3.5,
+    "pista_dir": 3.5,
+    "bordo_dir": 3.1655
+  },
+  {
+    "ini": "123+0",
+    "fim": "642+0",
+    "bordo_esq": 2.0,
+    "pista_esq": 3.5,
+    "pista_dir": 3.5,
+    "bordo_dir": 2.0
+  }
+]
