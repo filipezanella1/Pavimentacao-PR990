@@ -128,7 +128,22 @@ const lig={CAP:0.048,RR:0.0007,EAI:0.0012};
 const ligPreco={CAP:5547.75,RR:4476.94,EAI:5716.46};
 
 let bancoLarguras=[];
-fetch('./larguras.json').then(r=>r.json()).then(d=>bancoLarguras=d);
+let bancoPronto = false;
+
+fetch("larguras.json")
+  .then(res => {
+    if (!res.ok) throw new Error("Arquivo larguras.json não encontrado");
+    return res.json();
+  })
+  .then(data => {
+    bancoLarguras = data;
+    bancoPronto = true;
+    console.log("Banco de larguras carregado:", bancoLarguras.length, "trechos");
+  })
+  .catch(err => {
+    console.error("Erro ao carregar JSON:", err);
+    alert("Erro ao carregar larguras.json");
+  });
 
 function toggleMetodo(){
   const metodo=document.querySelector('input[name="metodo"]:checked').value;
@@ -177,7 +192,7 @@ function calcular(){
 
   if(metodo==='total'){
     if(usarBanco.checked){
-      if(!bancoLarguras.length){
+      if(!bancoPronto){
         resultado.innerHTML='<div class="bubble">Banco de larguras não carregado</div>';
         return;
       }
